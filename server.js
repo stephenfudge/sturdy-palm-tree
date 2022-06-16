@@ -5,10 +5,8 @@ const PORT = 3001 || process.env.PORT;
 const path = require('path');
 const fs = require('fs');
 const uniqid = require('./routes/helper');
+const db = require('./db/db.json');
 
-
-// const htmlRouter = require('./routes/htmlroutes');
-// const notesRouter = require('./routes/noteRoutes');
 
 // setting the static location for things being referenced
 app.use(express.static('public'));
@@ -17,8 +15,7 @@ app.use(express.urlencoded({
   extended: true
 }));
 app.use(express.json());
-// app.use('/notes', notesRouter );
-// app.use('/', )
+
 
 
 // url endpoints 
@@ -32,12 +29,14 @@ app.get('/notes', (req, res) => {
 
 // get requests 
 app.get('/api/notes', (req, res) => {
-  res.sendFile(path.join(__dirname, '/db/db.json'))
+  // res.sendFile(path.join(__dirname, '/db/db.json'))
+  fs.readFile('./db/db.json', 'utf8', (err, data) => {
+    err ? console.log(err) : res.json(JSON.parse(data))  
+  })
 });
 
 
 // post requests
-
 app.post('/api/notes', (req, res) => {
   // Log that a POST request was received
   console.info(`${req.body} request received to add a review`);
@@ -75,14 +74,14 @@ app.post('/api/notes', (req, res) => {
             writeErr
               ? console.error(writeErr)
               : console.info('Successfully updated notes!')
-        );
+        ); res.sendFile(path.join(__dirname, '/public/notes.html'))
       }
     });
   }});
-
 
 
 // letting you know what port is being used
 app.listen(PORT, () =>
   console.log(`Express server listening on port ${PORT}!`)
 );
+
